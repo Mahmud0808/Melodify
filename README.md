@@ -3,7 +3,7 @@ Welcome to Melodify, a minimalistic music player application designed to provide
 
 ## Screenshots 📱
 <div align="center">
-<img src="https://i.postimg.cc/nnM2m6pr/Melodify.png" />
+<img src="https://i.ibb.co/QQ41PxZ/Melodify.png" />
 </div>
 
 ## Features 🔥
