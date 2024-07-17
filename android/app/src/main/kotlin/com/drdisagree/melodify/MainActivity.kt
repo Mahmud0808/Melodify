@@ -1,0 +1,5 @@
+package com.drdisagree.melodify
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
