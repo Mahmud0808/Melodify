@@ -5,7 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import '../../../controllers/song_list_controller.dart';
 import '../../../utility/constants/colors.dart';
 import '../../../utility/widgets/artist_row.dart';
-import '../../player/player_controller.dart';
+import '../../../controllers/player_controller.dart';
 
 class ArtistsTab extends StatefulWidget {
   const ArtistsTab({super.key});

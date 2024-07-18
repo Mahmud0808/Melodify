@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melodify/screens/player/player_controller.dart';
+import 'package:melodify/controllers/player_controller.dart';
 import 'package:melodify/utility/constants/colors.dart';
 import 'package:melodify/utility/widgets/song_row.dart';
 import 'package:on_audio_query/on_audio_query.dart';

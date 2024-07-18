@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melodify/screens/favorites/favorite_screen.dart';
-import 'package:melodify/screens/player/player_controller.dart';
+import 'package:melodify/controllers/player_controller.dart';
 import 'package:melodify/utility/constants/colors.dart';
 import 'package:melodify/utility/widgets/song_row.dart';
 
