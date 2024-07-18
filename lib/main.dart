@@ -24,7 +24,7 @@ Future<void> main() async {
 
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.drdisgaree.melodify.channel.audio',
-    androidNotificationChannelName: 'Audio playback',
+    androidNotificationChannelName: 'Music Player',
     androidNotificationOngoing: true,
   );
 
