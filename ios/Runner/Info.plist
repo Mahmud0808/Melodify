@@ -49,5 +49,9 @@
 		<string>$(PROJECT_NAME) requires access to media library</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>UIBackgroundModes</key>
+        <array>
+            <string>audio</string>
+        </array>
 	</dict>
 </plist>

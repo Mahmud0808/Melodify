@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class PlayerController extends GetxController {
@@ -12,7 +13,7 @@ class PlayerController extends GetxController {
   final hasPermission = false.obs;
   final isLoading = false.obs;
   var songs = <SongModel>[].obs;
-  var currentlyPlayingIndex = (-1).obs;
+  var currentSongIndex = (-1).obs;
   var isPlaying = false.obs;
 
   var duration = "".obs;
@@ -56,17 +57,31 @@ class PlayerController extends GetxController {
     isLoading.value = false;
   }
 
+  setAudioSource() {
+    if (currentSongIndex.value == -1) {
+      throw Exception("Current song index can not be -1");
+    }
+
+    final currentSong = songs[currentSongIndex.value];
+
+    audioPlayer.setAudioSource(
+      AudioSource.uri(
+        Uri.parse(currentSong.uri!),
+        tag: MediaItem(
+          id: currentSong.id.toString(),
+          album: currentSong.album,
+          title: currentSong.title,
+        ),
+      ),
+      initialPosition: Duration(seconds: value.value.toInt()),
+    );
+  }
+
   goToPreviousSong() {
     if (hasPrev.value) {
       resetDuration();
-
-      currentlyPlayingIndex.value -= 1;
-
-      audioPlayer.setAudioSource(
-        AudioSource.uri(Uri.parse(songs[currentlyPlayingIndex.value].uri!)),
-        initialPosition: Duration(seconds: value.value.toInt()),
-      );
-
+      currentSongIndex.value -= 1;
+      setAudioSource();
       currentSongIsFavorite.value = isSongInFavorites();
     }
   }
@@ -74,27 +89,17 @@ class PlayerController extends GetxController {
   goToNextSong() {
     if (hasNext.value) {
       resetDuration();
-
-      currentlyPlayingIndex.value += 1;
-
-      audioPlayer.setAudioSource(
-        AudioSource.uri(Uri.parse(songs[currentlyPlayingIndex.value].uri!)),
-        initialPosition: Duration(seconds: value.value.toInt()),
-      );
-
+      currentSongIndex.value += 1;
+      setAudioSource();
       currentSongIsFavorite.value = isSongInFavorites();
     }
   }
 
   playSong(int index) {
     try {
-      audioPlayer.setAudioSource(
-        AudioSource.uri(Uri.parse(songs[index].uri!)),
-        initialPosition: Duration(seconds: value.value.toInt()),
-      );
+      currentSongIndex.value = index;
+      setAudioSource();
       audioPlayer.play();
-
-      currentlyPlayingIndex.value = index;
       isPlaying.value = true;
 
       updatePosition();
@@ -144,18 +149,22 @@ class PlayerController extends GetxController {
   }
 
   addSongToFavorites() {
-    GetStorage().write(songs[currentlyPlayingIndex.value].id.toString(), true);
+    GetStorage().write(songs[currentSongIndex.value].id.toString(), true);
     currentSongIsFavorite.value = true;
   }
 
   removeSongFromFavorites() {
-    GetStorage().remove(songs[currentlyPlayingIndex.value].id.toString());
+    GetStorage().remove(songs[currentSongIndex.value].id.toString());
     currentSongIsFavorite.value = false;
   }
 
   isSongInFavorites() {
-    return GetStorage()
-            .read(songs[currentlyPlayingIndex.value].id.toString()) ==
+    return GetStorage().read(songs[currentSongIndex.value].id.toString()) ==
+        true;
+  }
+
+  isSongModelInFavorites(song) {
+    return GetStorage().read(song.id.toString()) ==
         true;
   }
 }

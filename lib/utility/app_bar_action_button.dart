@@ -17,7 +17,7 @@ class AppBarActionButton extends StatelessWidget {
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: bgDarkColor,
+        color: colorBackground,
       ),
       child: IconButton(
         padding: const EdgeInsets.all(8),

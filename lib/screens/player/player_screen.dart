@@ -5,10 +5,10 @@ import 'package:melodify/utility/constants/colors.dart';
 import 'package:melodify/utility/custom_slider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-class Player extends StatelessWidget {
+class PlayerScreen extends StatelessWidget {
   final int index;
 
-  const Player({
+  const PlayerScreen({
     super.key,
     required this.index,
   });
@@ -18,13 +18,13 @@ class Player extends StatelessWidget {
     var controller = Get.find<PlayerController>();
 
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: colorBackgroundVariant,
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(
             Icons.arrow_back,
-            color: whiteColor,
+            color: textColorPrimary,
           ),
         ),
       ),
@@ -33,7 +33,7 @@ class Player extends StatelessWidget {
           Container(
             margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             decoration: BoxDecoration(
-              color: bgDarkColor,
+              color: colorBackground,
               borderRadius: BorderRadius.circular(36),
             ),
             alignment: Alignment.center,
@@ -42,7 +42,7 @@ class Player extends StatelessWidget {
               child: Obx(
                 () => QueryArtworkWidget(
                   id: controller
-                      .songs[controller.currentlyPlayingIndex.value].id,
+                      .songs[controller.currentSongIndex.value].id,
                   type: ArtworkType.AUDIO,
                   artworkWidth: double.infinity,
                   artworkHeight: double.infinity,
@@ -51,7 +51,7 @@ class Player extends StatelessWidget {
                   nullArtworkWidget: const Icon(
                     Icons.music_note,
                     size: 80,
-                    color: whiteColorVariant,
+                    color: textColorSecondary,
                   ),
                 ),
               ),
@@ -60,7 +60,7 @@ class Player extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
-                color: bgDarkColor,
+                color: colorBackground,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(36),
                 ),
@@ -80,12 +80,12 @@ class Player extends StatelessWidget {
                                 Text(
                                   controller
                                       .songs[controller
-                                          .currentlyPlayingIndex.value]
+                                          .currentSongIndex.value]
                                       .title,
                                   style: const TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w700,
-                                    color: whiteColor,
+                                    color: textColorPrimary,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -93,13 +93,13 @@ class Player extends StatelessWidget {
                                 Text(
                                   controller
                                           .songs[controller
-                                              .currentlyPlayingIndex.value]
+                                              .currentSongIndex.value]
                                           .artist ??
                                       "Unknown artist",
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w600,
-                                    color: whiteColorVariant,
+                                    color: textColorSecondary,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -114,14 +114,14 @@ class Player extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: bgColor,
+                            color: colorBackgroundVariant,
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: Obx(() {
                             Color iconColor =
                                 controller.currentSongIsFavorite.value
                                     ? Colors.redAccent
-                                    : whiteColorVariant.withAlpha(160);
+                                    : textColorSecondary.withAlpha(160);
 
                             return GestureDetector(
                               onTap: () {
@@ -150,7 +150,7 @@ class Player extends StatelessWidget {
                       ),
                       thumbColor: purpleColor,
                       activeTrackColor: purpleColor,
-                      inactiveTrackColor: bgColor,
+                      inactiveTrackColor: colorBackgroundVariant,
                       overlayColor: purpleColor.withAlpha(32),
                       trackHeight: 8,
                     ),
@@ -185,20 +185,20 @@ class Player extends StatelessWidget {
 
                                     if (controller.isPlaying.value) {
                                       controller.playSong(controller
-                                          .currentlyPlayingIndex.value);
+                                          .currentSongIndex.value);
                                     }
                                   }
                                 : null,
                             icon: Icon(
                               Icons.skip_previous_outlined,
                               size: 48,
-                              color: whiteColorVariant.withAlpha(
+                              color: textColorSecondary.withAlpha(
                                   controller.hasPrev.value ? 160 : 60),
                             ),
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: bgColor,
+                              color: colorBackgroundVariant,
                               borderRadius: BorderRadius.circular(28),
                             ),
                             child: InkWell(
@@ -207,7 +207,7 @@ class Player extends StatelessWidget {
                                   controller.pauseSong();
                                 } else {
                                   controller.playSong(
-                                      controller.currentlyPlayingIndex.value);
+                                      controller.currentSongIndex.value);
                                 }
                               },
                               child: Padding(
@@ -216,12 +216,12 @@ class Player extends StatelessWidget {
                                     ? const Icon(
                                         Icons.pause_rounded,
                                         size: 48,
-                                        color: whiteColorVariant,
+                                        color: textColorSecondary,
                                       )
                                     : const Icon(
                                         Icons.play_arrow_rounded,
                                         size: 48,
-                                        color: whiteColorVariant,
+                                        color: textColorSecondary,
                                       ),
                               ),
                             ),
@@ -233,14 +233,14 @@ class Player extends StatelessWidget {
 
                                     if (controller.isPlaying.value) {
                                       controller.playSong(controller
-                                          .currentlyPlayingIndex.value);
+                                          .currentSongIndex.value);
                                     }
                                   }
                                 : null,
                             icon: Icon(
                               Icons.skip_next_outlined,
                               size: 48,
-                              color: whiteColorVariant.withAlpha(
+                              color: textColorSecondary.withAlpha(
                                   controller.hasNext.value ? 160 : 60),
                             ),
                           ),
@@ -279,7 +279,7 @@ class TimeDisplayWidget extends StatelessWidget {
               startTime,
               style: const TextStyle(
                 fontSize: 13,
-                color: whiteColorVariant,
+                color: textColorSecondary,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -292,7 +292,7 @@ class TimeDisplayWidget extends StatelessWidget {
               endTime,
               style: const TextStyle(
                 fontSize: 13,
-                color: whiteColorVariant,
+                color: textColorSecondary,
                 fontWeight: FontWeight.w400,
               ),
             ),
