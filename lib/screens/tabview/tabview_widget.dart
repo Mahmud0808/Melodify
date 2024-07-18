@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:melodify/screens/songs/songs_screen.dart';
 import 'package:melodify/utility/constants/colors.dart';
 
+import '../../utility/widgets/mini_player_view.dart';
 import '../home/home_screen.dart';
 import '../settings/settings_screen.dart';
 
@@ -49,7 +50,7 @@ class _MainTabViewState extends State<MainTabView>
               SettingsScreen(),
             ],
           ),
-          // MiniPlayerView(),
+          const MiniPlayerView(),
         ],
       ),
       bottomNavigationBar: Container(
