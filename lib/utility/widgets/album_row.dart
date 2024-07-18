@@ -38,19 +38,26 @@ class AlbumRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(
-                  color: colorBackgroundVariant,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(18),
+              QueryArtworkWidget(
+                id: album.id,
+                type: ArtworkType.ALBUM,
+                artworkBorder: BorderRadius.circular(18),
+                artworkHeight: 80,
+                artworkWidth: 80,
+                nullArtworkWidget: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    color: colorBackgroundVariant,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(18),
+                    ),
                   ),
-                ),
-                child: const Icon(
-                  Icons.album_rounded,
-                  color: textColorPrimary,
-                  size: 32,
+                  child: const Icon(
+                    Icons.album_rounded,
+                    color: textColorPrimary,
+                    size: 32,
+                  ),
                 ),
               ),
               const SizedBox(width: 24),
