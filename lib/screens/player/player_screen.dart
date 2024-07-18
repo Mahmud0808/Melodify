@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melodify/screens/player/player_controller.dart';
+import 'package:melodify/controllers/player_controller.dart';
 import 'package:melodify/utility/constants/colors.dart';
 import 'package:melodify/utility/custom_slider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -43,6 +43,7 @@ class PlayerScreen extends StatelessWidget {
                 () => QueryArtworkWidget(
                   id: controller
                       .songs[controller.currentSongIndex.value].id,
+                  size: 8000,
                   type: ArtworkType.AUDIO,
                   artworkWidth: double.infinity,
                   artworkHeight: double.infinity,
