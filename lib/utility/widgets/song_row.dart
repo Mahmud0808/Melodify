@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:unicons/unicons.dart';
 
 import '../constants/colors.dart';
 
 class SongRow extends StatelessWidget {
   final SongModel song;
-  final bool isSongPlaying;
   final VoidCallback onPressedRow;
   final VoidCallback onPressedPlay;
   final VoidCallback onPressedPause;
@@ -13,7 +13,6 @@ class SongRow extends StatelessWidget {
   const SongRow({
     super.key,
     required this.song,
-    required this.isSongPlaying,
     required this.onPressedRow,
     required this.onPressedPlay,
     required this.onPressedPause,
@@ -50,7 +49,7 @@ class SongRow extends StatelessWidget {
                     ),
                   ),
                   child: const Icon(
-                    Icons.music_note,
+                    UniconsLine.music_note,
                     color: textColorPrimary,
                     size: 32,
                   ),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class CustomTrackShape extends RoundedRectSliderTrackShape {
+class PlayerSliderTrackShape extends RoundedRectSliderTrackShape {
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
 
-  CustomTrackShape({
+  PlayerSliderTrackShape({
     this.padding = EdgeInsets.zero,
     this.margin = EdgeInsets.zero,
   });
@@ -32,10 +32,10 @@ class CustomTrackShape extends RoundedRectSliderTrackShape {
   }
 }
 
-class CustomThumbShape extends SliderComponentShape {
+class PlayerSliderThumbShape extends SliderComponentShape {
   final double thumbRadius;
 
-  CustomThumbShape({this.thumbRadius = 12.0});
+  PlayerSliderThumbShape({this.thumbRadius = 12.0});
 
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) {

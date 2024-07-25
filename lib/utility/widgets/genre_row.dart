@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:unicons/unicons.dart';
 
 import '../constants/colors.dart';
 
@@ -54,7 +55,7 @@ class GenreRow extends StatelessWidget {
                     ),
                   ),
                   child: const Icon(
-                    Icons.headphones_rounded,
+                    UniconsLine.headphones_alt,
                     color: textColorPrimary,
                     size: 32,
                   ),
@@ -78,7 +79,7 @@ class GenreRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Songs: ${genre.numOfSongs}",
+                      "${genre.numOfSongs} song${genre.numOfSongs > 1 ? "s" : ""}",
                       style: const TextStyle(
                         fontSize: 15,
                         color: textColorSecondary,

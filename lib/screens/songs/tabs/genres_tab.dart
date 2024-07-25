@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:melodify/utility/widgets/genre_row.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
+import '../../../controllers/player_controller.dart';
 import '../../../controllers/song_list_controller.dart';
 import '../../../utility/constants/colors.dart';
-import '../../../controllers/player_controller.dart';
 
 class GenresTab extends StatefulWidget {
   const GenresTab({super.key});
@@ -17,10 +17,8 @@ class GenresTab extends StatefulWidget {
 class _GenresTabState extends State<GenresTab> {
   @override
   Widget build(BuildContext context) {
-    var songListController = Get.put(SongListController());
-    var playerController = Get.put(PlayerController());
-
-    songListController.fetchGenres();
+    var songListController = Get.find<SongListController>();
+    var playerController = Get.find<PlayerController>();
 
     return Obx(() {
       if (songListController.isLoadingGenres.value) {

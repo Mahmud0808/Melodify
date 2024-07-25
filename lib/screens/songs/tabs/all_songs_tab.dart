@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:melodify/controllers/song_list_controller.dart';
 import 'package:melodify/controllers/player_controller.dart';
+import 'package:melodify/controllers/song_list_controller.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../../utility/constants/colors.dart';
@@ -18,10 +18,8 @@ class AllSongsTab extends StatefulWidget {
 class _AllSongsTabState extends State<AllSongsTab> {
   @override
   Widget build(BuildContext context) {
-    var songListController = Get.put(SongListController());
-    var playerController = Get.put(PlayerController());
-
-    songListController.fetchSongs();
+    var songListController = Get.find<SongListController>();
+    var playerController = Get.find<PlayerController>();
 
     return Obx(() {
       if (songListController.isLoadingSongs.value) {
@@ -96,31 +94,37 @@ class AllSongsWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Obx(
-                  () => SongRow(
-                    song: songList[index],
-                    isSongPlaying: playerController.isPlaying.value,
-                    onPressedRow: () {
-                      if (playerController.currentSongIndex.value != index) {
-                        playerController.resetDuration();
-                      }
+                child: SongRow(
+                  song: songList[index],
+                  onPressedRow: () {
+                    if (playerController.songList.isEmpty) {
+                      playerController.setSongList(songList);
+                    }
 
-                      playerController.playSong(index);
+                    if (playerController.isPlaying.value) {
+                      playerController.setSongList(songList);
+                      playerController.play(index);
+                    }
 
-                      Get.to(
-                        PlayerScreen(
-                          index: index,
-                        ),
-                        transition: Transition.downToUp,
-                      );
-                    },
-                    onPressedPlay: () {
-                      playerController.playSong(index);
-                    },
-                    onPressedPause: () {
-                      playerController.pauseSong();
-                    },
-                  ),
+                    playerController.tempSongList.value = songList;
+                    playerController.tempCurrentSong.value = songList[index];
+                    playerController.tempCurrentSongIndex.value = index;
+
+                    Get.to(
+                      () => PlayerScreen(
+                        index: index,
+                        songList: songList,
+                      ),
+                      transition: Transition.downToUp,
+                    );
+                  },
+                  onPressedPlay: () {
+                    playerController.setSongList(songList);
+                    playerController.play(index);
+                  },
+                  onPressedPause: () {
+                    playerController.pause();
+                  },
                 ),
               );
             },

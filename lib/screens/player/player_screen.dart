@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:melodify/controllers/player_controller.dart';
+import 'package:melodify/controllers/song_list_controller.dart';
 import 'package:melodify/utility/constants/colors.dart';
 import 'package:melodify/utility/custom_slider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:unicons/unicons.dart';
+
+import '../../utility/widgets/time_display.dart';
 
 class PlayerScreen extends StatelessWidget {
   final int index;
+  final List<SongModel> songList;
 
   const PlayerScreen({
     super.key,
     required this.index,
+    required this.songList,
   });
 
   @override
   Widget build(BuildContext context) {
-    var controller = Get.find<PlayerController>();
+    final playerController = Get.find<PlayerController>();
+    final songListController = Get.find<SongListController>();
 
     return Scaffold(
       backgroundColor: colorBackgroundVariant,
@@ -23,7 +30,7 @@ class PlayerScreen extends StatelessWidget {
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(
-            Icons.arrow_back,
+            UniconsLine.arrow_left,
             color: textColorPrimary,
           ),
         ),
@@ -41,8 +48,9 @@ class PlayerScreen extends StatelessWidget {
               aspectRatio: 1 / 1,
               child: Obx(
                 () => QueryArtworkWidget(
-                  id: controller
-                      .songs[controller.currentSongIndex.value].id,
+                  id: playerController
+                      .tempSongList[playerController.tempCurrentSongIndex.value]
+                      .id,
                   size: 8000,
                   type: ArtworkType.AUDIO,
                   artworkWidth: double.infinity,
@@ -50,7 +58,7 @@ class PlayerScreen extends StatelessWidget {
                   artworkQuality: FilterQuality.high,
                   artworkBorder: BorderRadius.circular(36),
                   nullArtworkWidget: const Icon(
-                    Icons.music_note,
+                    UniconsLine.music_note,
                     size: 80,
                     color: textColorSecondary,
                   ),
@@ -79,9 +87,9 @@ class PlayerScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  controller
-                                      .songs[controller
-                                          .currentSongIndex.value]
+                                  playerController
+                                      .tempSongList[playerController
+                                          .tempCurrentSongIndex.value]
                                       .title,
                                   style: const TextStyle(
                                     fontSize: 28,
@@ -92,9 +100,9 @@ class PlayerScreen extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  controller
-                                          .songs[controller
-                                              .currentSongIndex.value]
+                                  playerController
+                                          .tempSongList[playerController
+                                              .tempCurrentSongIndex.value]
                                           .artist ??
                                       "Unknown artist",
                                   style: const TextStyle(
@@ -119,18 +127,33 @@ class PlayerScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: Obx(() {
-                            Color iconColor =
-                                controller.currentSongIsFavorite.value
-                                    ? Colors.redAccent
-                                    : textColorSecondary.withAlpha(160);
+                            bool isFavorite =
+                                playerController.isFavoriteSong.value;
+                            Color iconColor = isFavorite
+                                ? Colors.redAccent
+                                : textColorSecondary.withAlpha(160);
 
                             return GestureDetector(
                               onTap: () {
-                                if (controller.currentSongIsFavorite.value) {
-                                  controller.removeSongFromFavorites();
+                                if (isFavorite) {
+                                  songListController.removeSongFromFavorites(
+                                      playerController.tempSongList[
+                                          playerController
+                                              .tempCurrentSongIndex.value]);
+                                  playerController.isFavoriteSong.value = false;
                                 } else {
-                                  controller.addSongToFavorites();
+                                  songListController.addSongToFavorites(
+                                      playerController.tempSongList[
+                                          playerController
+                                              .tempCurrentSongIndex.value]);
+                                  playerController.isFavoriteSong.value = true;
                                 }
+
+                                songListController.tempFavorites.value =
+                                    songListController.songs
+                                        .where((song) => songListController
+                                            .isSongInFavorites(song))
+                                        .toList();
                               },
                               child: Icon(
                                 Icons.favorite,
@@ -145,8 +168,8 @@ class PlayerScreen extends StatelessWidget {
                   ),
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      trackShape: CustomTrackShape(),
-                      thumbShape: CustomThumbShape(
+                      trackShape: PlayerSliderTrackShape(),
+                      thumbShape: PlayerSliderThumbShape(
                         thumbRadius: 12.0,
                       ),
                       thumbColor: purpleColor,
@@ -158,19 +181,19 @@ class PlayerScreen extends StatelessWidget {
                     child: Obx(
                       () => Slider(
                         min: 0.0,
-                        max: controller.max.value,
-                        value: controller.value.value,
+                        max: playerController.maxDuration.value,
+                        value: playerController.currentDuration.value,
                         onChanged: (newValue) {
-                          controller.changeCurrentDuration(newValue.toInt());
+                          playerController.seekTo(newValue.toInt());
                           newValue = newValue;
                         },
                       ),
                     ),
                   ),
                   Obx(
-                    () => TimeDisplayWidget(
-                      startTime: controller.currentPosition.value,
-                      endTime: controller.duration.value,
+                    () => TimeDisplay(
+                      startTime: playerController.currentDuration.value,
+                      endTime: playerController.maxDuration.value,
                     ),
                   ),
                   Padding(
@@ -180,21 +203,16 @@ class PlayerScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           IconButton(
-                            onPressed: controller.hasPrev.value
+                            onPressed: playerController.hasPrev.value
                                 ? () {
-                                    controller.goToPreviousSong();
-
-                                    if (controller.isPlaying.value) {
-                                      controller.playSong(controller
-                                          .currentSongIndex.value);
-                                    }
+                                    playerController.previous();
                                   }
                                 : null,
                             icon: Icon(
-                              Icons.skip_previous_outlined,
+                              UniconsLine.previous,
                               size: 48,
                               color: textColorSecondary.withAlpha(
-                                  controller.hasPrev.value ? 160 : 60),
+                                  playerController.hasPrev.value ? 160 : 60),
                             ),
                           ),
                           Container(
@@ -204,16 +222,17 @@ class PlayerScreen extends StatelessWidget {
                             ),
                             child: InkWell(
                               onTap: () {
-                                if (controller.isPlaying.value) {
-                                  controller.pauseSong();
+                                if (playerController.isPlaying.value) {
+                                  playerController.pause();
                                 } else {
-                                  controller.playSong(
-                                      controller.currentSongIndex.value);
+                                  playerController.setSongList(songList);
+                                  playerController.play(playerController
+                                      .tempCurrentSongIndex.value);
                                 }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(18),
-                                child: controller.isPlaying.value
+                                child: playerController.isPlaying.value
                                     ? const Icon(
                                         Icons.pause_rounded,
                                         size: 48,
@@ -228,21 +247,16 @@ class PlayerScreen extends StatelessWidget {
                             ),
                           ),
                           IconButton(
-                            onPressed: controller.hasNext.value
+                            onPressed: playerController.hasNext.value
                                 ? () {
-                                    controller.goToNextSong();
-
-                                    if (controller.isPlaying.value) {
-                                      controller.playSong(controller
-                                          .currentSongIndex.value);
-                                    }
+                                    playerController.next();
                                   }
                                 : null,
                             icon: Icon(
-                              Icons.skip_next_outlined,
+                              UniconsLine.step_forward,
                               size: 48,
                               color: textColorSecondary.withAlpha(
-                                  controller.hasNext.value ? 160 : 60),
+                                  playerController.hasNext.value ? 160 : 60),
                             ),
                           ),
                         ],
@@ -255,51 +269,6 @@ class PlayerScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class TimeDisplayWidget extends StatelessWidget {
-  final String startTime;
-  final String endTime;
-
-  const TimeDisplayWidget({
-    super.key,
-    required this.startTime,
-    required this.endTime,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              startTime,
-              style: const TextStyle(
-                fontSize: 13,
-                color: textColorSecondary,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              endTime,
-              style: const TextStyle(
-                fontSize: 13,
-                color: textColorSecondary,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

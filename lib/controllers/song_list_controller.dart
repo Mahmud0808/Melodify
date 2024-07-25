@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class SongListController extends GetxController {
@@ -9,16 +10,25 @@ class SongListController extends GetxController {
   final isLoadingAlbums = false.obs;
   final isLoadingArtists = false.obs;
   final isLoadingGenres = false.obs;
+  final isLoadingFavorites = false.obs;
 
   var songs = <SongModel>[].obs;
   var albums = <AlbumModel>[].obs;
   var artists = <ArtistModel>[].obs;
   var genres = <GenreModel>[].obs;
+  var favorites = <SongModel>[].obs;
+  var tempFavorites = <SongModel>[].obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    checkAndRequestPermissions();
+
+    await checkAndRequestPermissions();
+
+    fetchSongs();
+    fetchAlbums();
+    fetchArtists();
+    fetchGenres();
   }
 
   checkAndRequestPermissions({bool retry = false}) async {
@@ -39,6 +49,8 @@ class SongListController extends GetxController {
         uriType: UriType.EXTERNAL,
         ignoreCase: true,
       );
+
+      fetchFavorites();
 
       isLoadingSongs.value = false;
     }
@@ -87,5 +99,26 @@ class SongListController extends GetxController {
 
       isLoadingGenres.value = false;
     }
+  }
+
+  fetchFavorites() async {
+    isLoadingFavorites.value = true;
+
+    favorites.value = songs.where((song) => isSongInFavorites(song)).toList();
+    tempFavorites.value = favorites;
+
+    isLoadingFavorites.value = false;
+  }
+
+  void addSongToFavorites(SongModel song) {
+    GetStorage().write(song.id.toString(), true);
+  }
+
+  void removeSongFromFavorites(SongModel song) {
+    GetStorage().remove(song.id.toString());
+  }
+
+  bool isSongInFavorites(SongModel song) {
+    return GetStorage().read(song.id.toString()) == true;
   }
 }

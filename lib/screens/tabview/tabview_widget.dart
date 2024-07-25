@@ -4,7 +4,6 @@ import 'package:melodify/utility/constants/colors.dart';
 
 import '../../utility/widgets/mini_player_view.dart';
 import '../home/home_screen.dart';
-import '../settings/settings_screen.dart';
 
 class MainTabView extends StatefulWidget {
   const MainTabView({super.key});
@@ -15,16 +14,16 @@ class MainTabView extends StatefulWidget {
 
 class _MainTabViewState extends State<MainTabView>
     with SingleTickerProviderStateMixin {
-  TabController? controller;
+  TabController? tabController;
   int selectTab = 0;
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 2, vsync: this);
 
-    controller?.addListener(() {
-      selectTab = controller?.index ?? 0;
+    tabController?.addListener(() {
+      selectTab = tabController?.index ?? 0;
       setState(() {});
     });
   }
@@ -32,7 +31,7 @@ class _MainTabViewState extends State<MainTabView>
   @override
   void dispose() {
     super.dispose();
-    controller?.dispose();
+    tabController?.dispose();
   }
 
   @override
@@ -42,12 +41,11 @@ class _MainTabViewState extends State<MainTabView>
         alignment: Alignment.bottomCenter,
         children: [
           TabBarView(
-            controller: controller,
+            controller: tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: const [
               HomeScreen(),
               SongsScreen(),
-              SettingsScreen(),
             ],
           ),
           const MiniPlayerView(),
@@ -57,15 +55,15 @@ class _MainTabViewState extends State<MainTabView>
         decoration: const BoxDecoration(color: colorBackground, boxShadow: [
           BoxShadow(
             color: Colors.black38,
-            blurRadius: 5,
+            blurRadius: 12,
             offset: Offset(0, -3),
           )
         ]),
         child: BottomAppBar(
-            color: Colors.transparent,
+            color: colorBackground,
             elevation: 0,
             child: TabBar(
-              controller: controller,
+              controller: tabController,
               indicatorColor: Colors.transparent,
               indicatorWeight: 1,
               labelColor: colorPrimary,
@@ -102,16 +100,6 @@ class _MainTabViewState extends State<MainTabView>
                     height: 20,
                   ),
                 ),
-                Tab(
-                  text: "Settings",
-                  icon: Image.asset(
-                    selectTab == 2
-                        ? "assets/images/setting_tab.png"
-                        : "assets/images/setting_tab_un.png",
-                    width: 20,
-                    height: 20,
-                  ),
-                )
               ],
             )),
       ),

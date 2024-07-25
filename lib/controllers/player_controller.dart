@@ -1,170 +1,138 @@
-import 'dart:developer';
-
+import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:melodify/controllers/song_list_controller.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-class PlayerController extends GetxController {
-  final OnAudioQuery audioQuery = OnAudioQuery();
-  final AudioPlayer audioPlayer = AudioPlayer();
+import '../utility/helpers.dart';
 
+class PlayerController extends GetxController {
+  final AudioPlayer audioPlayer = AudioPlayer();
+  final SongListController songListController = Get.find<SongListController>();
+
+  final currentSong = SongModel({}).obs;
+  final tempCurrentSong = SongModel({}).obs;
+  final currentSongIndex = (-1).obs;
+  final tempCurrentSongIndex = (-1).obs;
+  final isPlaying = false.obs;
+  final hasPrev = true.obs;
+  final hasNext = false.obs;
+  final isShuffleModeEnabled = false.obs;
   final hasPermission = false.obs;
   final isLoading = false.obs;
-  var songs = <SongModel>[].obs;
-  var currentSongIndex = (-1).obs;
-  var isPlaying = false.obs;
-
-  var duration = "".obs;
-  var currentPosition = "".obs;
-
-  var max = 0.0.obs;
-  var value = 0.0.obs;
-
-  var hasPrev = false.obs;
-  var hasNext = true.obs;
-
-  var currentSongIsFavorite = false.obs;
+  final songList = <SongModel>[].obs;
+  final tempSongList = <SongModel>[].obs;
+  final maxDuration = 0.0.obs;
+  final currentDuration = 0.0.obs;
+  final isFavoriteSong = false.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    checkAndRequestPermissions();
+
+    initializeListeners();
   }
 
-  checkAndRequestPermissions({bool retry = false}) async {
-    if (await audioQuery.permissionsStatus() != true) {
-      hasPermission.value = await audioQuery.permissionsRequest();
-    } else {
-      hasPermission.value = true;
-    }
-
-    if (hasPermission.value) {
-      fetchSongs();
-    }
-  }
-
-  fetchSongs() async {
-    isLoading.value = true;
-    var fetchedSongs = await audioQuery.querySongs(
-      sortType: null,
-      orderType: OrderType.ASC_OR_SMALLER,
-      uriType: UriType.EXTERNAL,
-      ignoreCase: true,
-    );
-    songs.value = fetchedSongs;
-    isLoading.value = false;
-  }
-
-  setAudioSource() {
-    if (currentSongIndex.value == -1) {
-      throw Exception("Current song index can not be -1");
-    }
-
-    final currentSong = songs[currentSongIndex.value];
-
-    audioPlayer.setAudioSource(
-      AudioSource.uri(
-        Uri.parse(currentSong.uri!),
-        tag: MediaItem(
-          id: currentSong.id.toString(),
-          album: currentSong.album,
-          title: currentSong.title,
-        ),
-      ),
-      initialPosition: Duration(seconds: value.value.toInt()),
-    );
-  }
-
-  goToPreviousSong() {
-    if (hasPrev.value) {
-      resetDuration();
-      currentSongIndex.value -= 1;
-      setAudioSource();
-      currentSongIsFavorite.value = isSongInFavorites();
-    }
-  }
-
-  goToNextSong() {
-    if (hasNext.value) {
-      resetDuration();
-      currentSongIndex.value += 1;
-      setAudioSource();
-      currentSongIsFavorite.value = isSongInFavorites();
-    }
-  }
-
-  playSong(int index) {
-    try {
-      currentSongIndex.value = index;
-      setAudioSource();
-      audioPlayer.play();
-      isPlaying.value = true;
-
-      updatePosition();
-
-      hasPrev.value = index > 0;
-      hasNext.value = index < songs.length - 1;
-
-      currentSongIsFavorite.value = isSongInFavorites();
-    } catch (e) {
-      log(e.toString());
-    }
-  }
-
-  pauseSong() {
-    try {
-      audioPlayer.pause();
-      isPlaying.value = false;
-    } catch (e) {
-      log(e.toString());
-    }
-  }
-
-  updatePosition() {
+  void initializeListeners() {
     audioPlayer.durationStream.listen((event) {
-      duration.value = event.toString().split(".")[0];
-      max.value = event!.inSeconds.toDouble();
+      maxDuration.value = event?.inSeconds.toDouble() ?? 0;
     });
 
     audioPlayer.positionStream.listen((event) {
-      currentPosition.value = event.toString().split(".")[0];
-      value.value = event.inSeconds.toDouble();
+      currentDuration.value = event.inSeconds.toDouble();
 
-      if (value.value == max.value) {
-        pauseSong();
+      if (currentDuration.value == maxDuration.value) {
+        pause();
         resetDuration();
       }
     });
+
+    tempCurrentSongIndex.listen((index) {
+      hasPrev.value = index > 0;
+      hasNext.value = index < tempSongList.length - 1;
+    });
+
+    tempCurrentSong.listen((song) {
+      isFavoriteSong.value = songListController.isSongInFavorites(song);
+    });
   }
 
-  changeCurrentDuration(seconds) {
-    var duration = Duration(seconds: seconds);
-    audioPlayer.seek(duration);
+  setSongList(List<SongModel> songs) {
+    songList.value = songs;
+    tempSongList.value = songs;
+  }
+
+  setAudioSource() async {
+    if (currentSongIndex.value < 0) {
+      throw Exception("Current song index can not be -1");
+    }
+
+    currentSong.value = songList[currentSongIndex.value];
+    final artworkUri = await getArtworkUri(currentSong.value.id);
+
+    audioPlayer.setAudioSource(
+      AudioSource.uri(
+        Uri.parse(currentSong.value.uri!),
+        tag: MediaItem(
+            id: currentSong.value.id.toString(),
+            title: currentSong.value.title,
+            album: currentSong.value.album,
+            artist: currentSong.value.artist,
+            genre: currentSong.value.genre,
+            duration: Duration(
+                milliseconds:
+                    currentSong.value.duration?.milliseconds.inMilliseconds ??
+                        0),
+            artUri: artworkUri),
+      ),
+      initialPosition: Duration(seconds: currentDuration.value.toInt()),
+    );
+  }
+
+  previous() {
+    if (hasPrev.value) {
+      resetDuration();
+      currentSongIndex.value--;
+      tempCurrentSongIndex.value--;
+      setAudioSource();
+      isFavoriteSong.value = songListController
+          .isSongInFavorites(songList[tempCurrentSongIndex.value]);
+    }
+  }
+
+  next() {
+    if (hasNext.value) {
+      resetDuration();
+      currentSongIndex.value++;
+      tempCurrentSongIndex.value++;
+      setAudioSource();
+      isFavoriteSong.value = songListController
+          .isSongInFavorites(songList[tempCurrentSongIndex.value]);
+    }
+  }
+
+  play(int index) {
+    if (currentSongIndex.value != index) {
+      currentSongIndex.value = index;
+      tempCurrentSongIndex.value = index;
+
+      setAudioSource();
+    }
+
+    audioPlayer.play();
+    isPlaying.value = true;
+  }
+
+  pause() {
+    audioPlayer.pause();
+    isPlaying.value = false;
+  }
+
+  seekTo(seconds) {
+    audioPlayer.seek(Duration(seconds: seconds));
   }
 
   resetDuration() {
-    value.value = const Duration(seconds: 0).inSeconds.toDouble();
-  }
-
-  addSongToFavorites() {
-    GetStorage().write(songs[currentSongIndex.value].id.toString(), true);
-    currentSongIsFavorite.value = true;
-  }
-
-  removeSongFromFavorites() {
-    GetStorage().remove(songs[currentSongIndex.value].id.toString());
-    currentSongIsFavorite.value = false;
-  }
-
-  isSongInFavorites() {
-    return GetStorage().read(songs[currentSongIndex.value].id.toString()) ==
-        true;
-  }
-
-  isSongModelInFavorites(song) {
-    return GetStorage().read(song.id.toString()) ==
-        true;
+    currentDuration.value = const Duration(seconds: 0).inSeconds.toDouble();
   }
 }

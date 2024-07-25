@@ -78,7 +78,7 @@ class ArtistRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Albums: ${artist.numberOfAlbums}, Tracks: ${artist.numberOfTracks}",
+                      "${artist.numberOfAlbums} album${artist.numberOfAlbums! > 1 ? "s" : ""}, ${artist.numberOfTracks} song${artist.numberOfTracks! > 1 ? "s" : ""}",
                       style: const TextStyle(
                         fontSize: 15,
                         color: textColorSecondary,

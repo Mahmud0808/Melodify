@@ -16,15 +16,16 @@ class SongsScreen extends StatefulWidget {
 
 class _SongsScreenState extends State<SongsScreen>
     with SingleTickerProviderStateMixin {
-  TabController? _scrollController;
+  TabController? tabController;
   int selectTab = 0;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = TabController(length: 4, vsync: this);
-    _scrollController?.addListener(() {
-      selectTab = _scrollController?.index ?? 0;
+
+    tabController = TabController(length: 4, vsync: this);
+    tabController?.addListener(() {
+      selectTab = tabController?.index ?? 0;
       setState(() {});
     });
   }
@@ -33,6 +34,7 @@ class _SongsScreenState extends State<SongsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const GlassAppBar(
+        isOpaque: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -52,13 +54,15 @@ class _SongsScreenState extends State<SongsScreen>
           SizedBox(
             height: kToolbarHeight + 24,
             child: TabBar(
-              controller: _scrollController,
+              controller: tabController,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               indicator: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(120),
               ),
+              indicatorColor: Colors.transparent,
+              indicatorWeight: 0,
               labelStyle: const TextStyle(
                 color: colorBackground,
                 fontSize: 14,
@@ -153,7 +157,7 @@ class _SongsScreenState extends State<SongsScreen>
           ),
           Expanded(
             child: TabBarView(
-              controller: _scrollController,
+              controller: tabController,
               physics: const NeverScrollableScrollPhysics(),
               children: const [
                 AllSongsTab(),

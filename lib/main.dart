@@ -1,10 +1,14 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:melodify/controllers/player_controller.dart';
 import 'package:melodify/screens/tabview/tabview_widget.dart';
 import 'package:melodify/utility/constants/colors.dart';
+
+import 'controllers/inject_dependencies.dart';
+import 'handler/audio_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,11 +25,15 @@ Future<void> main() async {
   ]);
 
   await GetStorage.init();
-
-  await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.drdisgaree.melodify.channel.audio',
-    androidNotificationChannelName: 'Music Player',
-    androidNotificationOngoing: true,
+  await injectDependencies();
+  await AudioService.init(
+    builder: () => MyAudioHandler(Get.find<PlayerController>()),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.drdisgaree.melodify.channel.audio',
+      androidNotificationChannelName: 'Music Player',
+      androidNotificationIcon: 'drawable/ic_stat_music_note',
+      androidNotificationOngoing: true,
+    ),
   );
 
   runApp(const MyApp());

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
+import '../../../controllers/player_controller.dart';
 import '../../../controllers/song_list_controller.dart';
 import '../../../utility/constants/colors.dart';
 import '../../../utility/widgets/album_row.dart';
-import '../../../controllers/player_controller.dart';
 
 class AlbumsTab extends StatefulWidget {
   const AlbumsTab({super.key});
@@ -17,10 +17,8 @@ class AlbumsTab extends StatefulWidget {
 class _AlbumsTabState extends State<AlbumsTab> {
   @override
   Widget build(BuildContext context) {
-    var songListController = Get.put(SongListController());
-    var playerController = Get.put(PlayerController());
-
-    songListController.fetchAlbums();
+    var songListController = Get.find<SongListController>();
+    var playerController = Get.find<PlayerController>();
 
     return Obx(() {
       if (songListController.isLoadingAlbums.value) {
