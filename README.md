@@ -14,6 +14,18 @@ Welcome to Melodify, a minimalistic music player application designed to provide
 
 - **Now Playing:** View and control the currently playing track with a beautiful now playing screen.
 
+- **Miniplayer:** A compact player view for quick access to playback controls without leaving your current screen.
+
+- **Favorites:** Mark your favorite tracks and easily access them from a dedicated section.
+
+- **Album View:** Browse and view your music organized by album.
+
+- **Artist View:** Explore and view your music categorized by artist.
+
+- **Genre View:** Discover and view your music sorted by genre.
+
+- **Media Notification:** Receive media controls and track information directly from your notification bar.
+
 - **Lightweight:** Minimal design ensures fast loading times and a responsive interface.
 
 ## Architecture 🗼
