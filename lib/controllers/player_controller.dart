@@ -42,8 +42,15 @@ class PlayerController extends GetxController {
       currentDuration.value = event.inSeconds.toDouble();
 
       if (currentDuration.value == maxDuration.value) {
-        pause();
-        resetDuration();
+        if (isPlaying.value) {
+          resetDuration();
+
+          if (hasNext.value) {
+            next();
+          } else {
+            pause();
+          }
+        }
       }
     });
 
